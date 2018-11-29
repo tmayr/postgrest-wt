@@ -35,7 +35,7 @@ server-port = 3000
 
 const launchPostgrest = () => {
   return new Promise((resolve, reject) => {
-    const binary = `./postgrest-npm/bin/postgrest-${PLATFORM}`;
+    const binary = `./node_modules/.bin/postgrest-${PLATFORM}`;
     proc = cp.spawn(binary, ["/tmp/p.conf"]);
 
     proc.stderr.on("data", data => {
