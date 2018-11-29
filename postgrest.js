@@ -47,6 +47,8 @@ const PostgRest = {
     return new Promise((resolve, reject) => {
       // const binary = `/data/_verquire/postgrest-npm/1.0.0/node_modules/postgrest-npm/bin/postgrest-${PLATFORM}`;
       const binary = `./node_modules/postgrest-npm/bin/postgrest-${PLATFORM}`;
+
+      // just overwriting a file might lead to security issues if any info leaks
       this.proc = spawn(binary, ["/tmp/p.conf"]);
 
       this.proc.stderr.on("data", data => {
