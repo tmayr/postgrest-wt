@@ -23,3 +23,6 @@ x-psqlrst-schema = schema
 ```
 curl <webtask url> -H "x-psqlrst-db-uri:<db-uri>"
 ```
+
+### link
+https://wt-tmayr-tmayr_com-0.sandbox.auth0-extend.com/postgrest-wt
