@@ -8,7 +8,7 @@ https://github.com/PostgREST/postgrest does this but isn't dynamic enough, so we
 
 ### how it works
 
-It spins out a postrest daemon, forwards your request to it, and kills the process. Kind of slow, but it works for _very_ simple usecases.
+It spins out a postgrest daemon, forwards your request to it, and kills the process. Kind of slow, but it works for _very_ simple usecases.
 
 ### options
 
