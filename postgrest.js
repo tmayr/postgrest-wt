@@ -41,7 +41,7 @@ const PostgRest = {
     // kill the session established beforehand
     this.kill();
 
-    // output the configuration
+    // output the configuration to a file
     await this._writeConfig(config);
 
     return new Promise((resolve, reject) => {
@@ -51,6 +51,7 @@ const PostgRest = {
       // just overwriting a file might lead to security issues if any info leaks
       this.proc = spawn(binary, ["/tmp/p.conf"]);
 
+      // log any errors
       this.proc.stderr.on("data", data => {
         const stringData = data.toString();
         console.error("[stderr]", stringData);
@@ -58,6 +59,7 @@ const PostgRest = {
         this.kill();
       });
 
+      // log any data incoming and listen for a string to determine if connection is done
       this.proc.stdout.on("data", data => {
         const stringData = data.toString();
         console.log("[stdout]: ", stringData);
