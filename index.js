@@ -1,72 +1,46 @@
-const fs = require("fs");
-const cp = require("child_process");
 const express = require("express");
 const proxy = require("express-http-proxy");
-var Webtask = require("webtask-tools");
+const Webtask = require("webtask-tools");
+const serveIndex = require("serve-index");
+const PGR = require("./postgrest");
 
 const app = express();
-let PLATFORM = "linux";
-let proc = null;
+let p;
 
-cp.exec("uname", (_, p) => (PLATFORM = p.toLowerCase().trim()));
-
-const createConfig = async (
-  uri = "postgres://root:root@localhost:5432/test",
-  schema = "public",
-  role = "public"
-) => {
-  const config = `
-db-uri = "${uri}"
-db-schema = "${schema}"
-db-anon-role = "${role}"
-db-pool = 1
-
-server-host = "127.0.0.1"
-server-port = 3000
-`;
-
-  return new Promise((resolve, reject) => {
-    fs.writeFile("/tmp/p.conf", config, (err, result) => {
-      if (err) return reject(err);
-      return resolve(result);
-    });
-  });
-};
-
-const launchPostgrest = () => {
-  return new Promise((resolve, reject) => {
-    const binary = `npm run postgrest-${PLATFORM}`;
-    proc = cp.spawn(binary, ["/tmp/p.conf"]);
-
-    proc.stderr.on("data", data => {
-      const stringData = data.toString();
-      console.error("[stderr]", stringData);
-      reject(stringData);
-    });
-
-    proc.stdout.on("data", data => {
-      const stringData = data.toString();
-      console.log("[stdout]: ", stringData);
-      if (stringData.includes("Connection successful")) resolve(stringData);
-    });
-  });
-};
+/**
+ * since I'm clueless about where WT stores the code
+ * we expose a handy filebrowser to poke around
+ */
+app.use("/browse", serveIndex("/", { icons: true }));
 
 app.use(
   proxy("127.0.0.1:3000", {
     proxyReqOptDecorator: async function(req) {
-      console.log(PLATFORM);
+      const headers = req.headers;
 
-      await createConfig();
-      await launchPostgrest();
+      // start the daemon and connect to the db
+      await PGR.connect({
+        db_uri: headers["x-psqlrst-db-uri"],
+        role: headers["x-psqlrst-role"],
+        schema: headers["x-psqlrst-schema"]
+      });
+
+      // after the daemon is up, we can forward the request
       return req;
     },
     userResDecorator: function(proxyRes, proxyResData) {
-      proc.kill();
+      // when the response is done, kill the daemon
+      PGR.kill();
+
       return Promise.resolve(proxyResData);
     }
   })
 );
+
+app.use((err, req, res, next) => {
+  console.log(err);
+  return res.status(500).json({ message: err.toString() });
+});
 
 module.exports = Webtask.fromExpress(app);
 
