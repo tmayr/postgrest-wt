@@ -1,6 +1,6 @@
 const url = require("url");
 const fs = require("fs");
-const { spawn, execSync } = require("child-process");
+const { spawn, execSync } = require("child_process");
 const { promisify } = require("util");
 const writeFileAsync = promisify(fs.writeFile);
 
@@ -35,21 +35,25 @@ const PostgRest = {
     server-port = 3000
     `;
 
-    return writeFileAsync("/tmp/p.conf", config);
+    const timestamp = new Date().getTime();
+    const filePath = `/tmp/psqlrst-${timestamp}.conf`;
+    await writeFileAsync(filePath, config);
+
+    return filePath;
   },
   connect: async function(config) {
     // kill the session established beforehand
     this.kill();
 
     // output the configuration to a file
-    await this._writeConfig(config);
+    const configFilePath = await this._writeConfig(config);
 
     return new Promise((resolve, reject) => {
       // const binary = `/data/_verquire/postgrest-npm/1.0.0/node_modules/postgrest-npm/bin/postgrest-${PLATFORM}`;
       const binary = `./node_modules/postgrest-npm/bin/postgrest-${PLATFORM}`;
 
       // just overwriting a file might lead to security issues if any info leaks
-      this.proc = spawn(binary, ["/tmp/p.conf"]);
+      this.proc = spawn(binary, [configFilePath]);
 
       // log any errors
       this.proc.stderr.on("data", data => {

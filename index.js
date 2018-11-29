@@ -5,7 +5,6 @@ const serveIndex = require("serve-index");
 const PGR = require("./postgrest");
 
 const app = express();
-let p;
 
 /**
  * since I'm clueless about where WT stores the code
