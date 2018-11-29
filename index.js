@@ -90,8 +90,11 @@ const PGR = {
     const configFilePath = await this._writeConfig(config);
 
     return new Promise((resolve, reject) => {
-      // const binary = `/data/_verquire/postgrest-npm/1.0.0/node_modules/postgrest-npm/bin/postgrest-${PLATFORM}`;
-      const binary = `./node_modules/postgrest-npm/bin/postgrest-${PLATFORM}`;
+      // couldnt figure out how to get the proper path inside a WT
+      let binary = `/data/_verquire/postgrest-npm/1.0.0/node_modules/postgrest-npm/bin/postgrest-${PLATFORM}`;
+      if (process.env.NODE_ENV) {
+        binary = `./node_modules/postgrest-npm/bin/postgrest-${PLATFORM}`;
+      }
 
       // just overwriting a file might lead to security issues if any info leaks
       this.proc = spawn(binary, [configFilePath]);
