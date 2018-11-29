@@ -4,6 +4,8 @@
 
 I just wanted an easy way to expose different database tables as REST service, but didn't want to spin ups servers or deployments for each database.
 
+https://github.com/PostgREST/postgrest does this but isn't dynamic enough, so we used WT to add that bit.
+
 ### how it works
 
 It spins out a postrest daemon, forwards your request to it, and kills the process. Kind of slow, but it works for _very_ simple usecases.
