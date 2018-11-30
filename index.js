@@ -92,7 +92,7 @@ const PGR = {
     return new Promise((resolve, reject) => {
       // couldnt figure out how to get the proper path inside a WT
       let binary = `/data/_verquire/postgrest-npm/1.0.0/node_modules/postgrest-npm/bin/postgrest-${PLATFORM}`;
-      if (process.env.NODE_ENV) {
+      if (process.env.NODE_ENV === "development") {
         binary = `./node_modules/postgrest-npm/bin/postgrest-${PLATFORM}`;
       }
 
